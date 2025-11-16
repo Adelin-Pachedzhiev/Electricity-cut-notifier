@@ -1,10 +1,10 @@
 # Electricity Cut Notifier - GitHub Actions Edition
 
-Автоматична система за известяване при планирани прекъсвания на електрозахранването от ЕРМ Запад.
+Automated notification system for planned electricity cuts from ERM Zapad (Bulgarian power company).
 
-## 🚀 Бърз старт за GitHub Actions
+## Quick Start
 
-### 1. Създайте GitHub Repository
+### 1. Create GitHub Repository
 
 ```bash
 git init
@@ -15,162 +15,144 @@ git remote add origin https://github.com/YOUR_USERNAME/electricity-cut-notifier.
 git push -u origin main
 ```
 
-### 2. Конфигурирайте GitHub Secrets
+### 2. Configure GitHub Secrets
 
-Отидете в **Settings → Secrets and variables → Actions** и добавете:
+Go to **Settings → Secrets and variables → Actions** and add:
 
 | Secret Name | Example Value | Description |
 |-------------|---------------|-------------|
-| `SENDER_EMAIL` | `biodix13@gmail.com` | Gmail адрес за изпращане |
-| `SENDER_PASSWORD` | `xxxx xxxx xxxx xxxx` | Gmail App Password (16 символа) |
-| `EMAIL_RECIPIENTS` | `email1@gmail.com,email2@abv.bg` | Получатели (разделени със запетая) |
+| `SENDER_EMAIL` | `your-email@gmail.com` | Gmail address for sending |
+| `SENDER_PASSWORD` | `xxxx xxxx xxxx xxxx` | Gmail App Password (16 characters) |
+| `EMAIL_RECIPIENTS` | `email1@gmail.com,email2@abv.bg` | Recipients (comma-separated) |
 
-**Важно за Gmail:** Използвайте App Password (не обикновената парола). Генерирайте на: https://myaccount.google.com/apppasswords
+**Important for Gmail:** Use App Password (not regular password). Generate at: https://myaccount.google.com/apppasswords
 
-**Известия за грешки:** GitHub автоматично изпраща имейл при неуспешно изпълнение. Вижте [GITHUB_NOTIFICATIONS.md](GITHUB_NOTIFICATIONS.md).
+**Error Notifications:** GitHub automatically sends email on workflow failures.
 
-### 3. Конфигурирайте градовете в config.json
+### 3. Configure Cities in config.json
 
 ```json
 {
   "monitored_cities": ["ГЪРМЕН", "ДЕБРЕН", "САНДАНСКИ"],
-  "check_days_ahead": 3,
+  "check_days_ahead": 2,
   "smtp_server": "smtp.gmail.com",
   "smtp_port": 587
 }
 ```
 
-### 4. Готово!
+**Note:** City names must be in Cyrillic uppercase as they appear in the source PDFs.
 
-Системата ще се стартира автоматично всеки ден в 10:00 ч. българско време.
+### 4. Done!
 
-## 📧 Формат на известието (на български)
+The system runs automatically every day at 10:00 AM Bulgarian time (8:00 UTC).
+
+## Email Notification Format
 
 ```
-От: <email>
-До: вашия-имейл@example.com
-Тема: Известие за прекъсване на тока - 2 дат(и) засегнат(и)
+From: your-email@gmail.com
+To: recipient@example.com
+Subject: Power Cut Notification - 2 date(s) affected
 
-ПЛАНИРАНИ ПРЕКЪСВАНИЯ НА ТОКА - ИЗВЕСТИЕ
+PLANNED POWER CUTS - NOTIFICATION
 ======================================================================
 
-Дата: 17.11.2025
+Date: 17.11.2025
 ----------------------------------------------------------------------
-Населено място: ГЪРМЕН
-Област: БЛАГОЕВГРАД
-Община: ГЪРМЕН
-Време: 08:30 - 16:30
+Location: ГЪРМЕН
+Region: БЛАГОЕВГРАД
+Municipality: ГЪРМЕН
+Time: 08:30 - 16:30
 
 ======================================================================
-Източник: https://info.ermzapad.bg/webint/vok/avplan.php?PLAN=FYI
+Source: https://info.ermzapad.bg/webint/vok/avplan.php?PLAN=FYI
 ```
 
-## 🔧 Конфигурация
+## Configuration
 
 ### config.json
 
-- `monitored_cities`: Списък с градове за проверка (кирилица, главни букви)
-- `check_days_ahead`: Колко дни напред да проверява (по подразбиране: 3)
-- `smtp_server`: SMTP сървър (Gmail: `smtp.gmail.com`)
-- `smtp_port`: Порт (Gmail: 587)
+- `monitored_cities`: List of cities to monitor (Cyrillic, uppercase)
+- `check_days_ahead`: How many days ahead to check (default: 2)
+- `smtp_server`: SMTP server (Gmail: `smtp.gmail.com`)
+- `smtp_port`: Port (Gmail: 587)
 
-### GitHub Secrets (задължителни - само 3!)
+### GitHub Secrets (3 required)
 
-- `SENDER_EMAIL`: От кой имейл да изпраща
-- `SENDER_PASSWORD`: Парола (за Gmail: App Password)
-- `EMAIL_RECIPIENTS`: На кого да изпраща (разделени със запетая)
+- `SENDER_EMAIL`: Email address to send from
+- `SENDER_PASSWORD`: Password (for Gmail: App Password)
+- `EMAIL_RECIPIENTS`: Who receives notifications (comma-separated, no spaces)
 
-**Известия за грешки:** GitHub автоматично ви изпраща имейл при неуспешно изпълнение на workflow. Вижте [GITHUB_NOTIFICATIONS.md](GITHUB_NOTIFICATIONS.md) за настройка.
+## Schedule
 
-## ⏰ График на изпълнение
+Default: Every day at **10:00 AM Bulgarian time** (8:00 UTC)
 
-По подразбиране: Всеки ден в **10:00 ч. българско време** (8:00 UTC)
-
-За промяна, редактирайте `.github/workflows/check-electricity-cuts.yml`:
+To change, edit [.github/workflows/check-electricity-cuts.yml](.github/workflows/check-electricity-cuts.yml):
 
 ```yaml
 schedule:
   - cron: '0 8 * * *'  # 10:00 Bulgarian time
 ```
 
-Примери:
-- `0 7 * * *` = 09:00 българско време
-- `0 9 * * *` = 11:00 българско време
-- `0 6,18 * * *` = 08:00 и 20:00 българско време
+Examples:
+- `0 7 * * *` = 09:00 Bulgarian time
+- `0 9 * * *` = 11:00 Bulgarian time
+- `0 6,18 * * *` = 08:00 and 20:00 Bulgarian time
 
-## 🧪 Ръчно стартиране
+## Manual Run
 
-1. Отидете в **Actions** таб
-2. Изберете **Check Electricity Cuts**
-3. Натиснете **Run workflow**
-4. Проверете имейла си
+1. Go to **Actions** tab
+2. Select **Check Electricity Cuts**
+3. Click **Run workflow**
+4. Check your email
 
-## 📊 Как работи
+## How It Works
 
 ```
 ┌─────────────────────────────────────────────────┐
-│   GitHub Actions се стартира (ежедневно)        │
+│   GitHub Actions triggers (daily)               │
 └─────────────┬───────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────────────────┐
-│   Сваля PDF-и от info.ermzapad.bg               │
+│   Downloads PDFs from info.ermzapad.bg          │
 └─────────────┬───────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────────────────┐
-│   Извлича информация за прекъсвания             │
+│   Extracts power cut information                │
 └─────────────┬───────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────────────────┐
-│   Филтрира по вашите градове                    │
+│   Filters by your monitored cities              │
 └─────────────┬───────────────────────────────────┘
               │
          ┌────┴────┐
          │         │
-    Намерени    Не са намерени
+      Found    Not found
          │         │
          ▼         ▼
    ┌─────────┐   ┌──────────┐
-   │ Изпраща │   │ Спира    │
-   │ имейл   │   └──────────┘
+   │  Send   │   │  Stop    │
+   │  email  │   └──────────┘
    └─────────┘
 ```
 
-## 🚨 Известия при грешки
+## Cost
 
-Ако възникне грешка, администраторът получава имейл:
+**Free!** GitHub Actions offers:
+- Unlimited minutes for public repositories
+- 2000 minutes/month for private repositories
+- This workflow uses ~2-3 minutes/day = ~60-90 minutes/month
 
-```
-Тема: ГРЕШКА: Система за известия за прекъсвания на тока
+## Security
 
-Възникна грешка в системата за известия за прекъсвания на тока.
+- ✅ Passwords stored as GitHub Secrets (encrypted)
+- ✅ Never shown in logs
+- ✅ Gmail App Password (not your main password)
+- ✅ config.json does NOT contain passwords (only cities and settings)
 
-ГРЕШКА:
-Connection timeout
-
-ДЕТАЙЛИ:
-[Пълна информация за грешката]
-
-Време: 2025-11-15 10:30:45
-```
-
-## 💰 Цена
-
-**Безплатно!** GitHub Actions предлага:
-- Неограничени минути за публични repositories
-- 2000 минути/месец за частни repositories
-- Този workflow използва ~2-3 минути/ден = ~60-90 минути/месец
-
-## 🔒 Сигурност
-
-- ✅ Паролите се съхраняват като GitHub Secrets (криптирани)
-- ✅ Никога не се показват в логовете
-- ✅ Gmail App Password (не вашата главна парола)
-- ✅ config.json НЕ съдържа пароли (само градове и настройки)
-
-## 📝 Настройка на Gmail
+## Gmail Setup
 
 ### config.json
 
@@ -183,40 +165,34 @@ Connection timeout
 
 ### GitHub Secrets
 
-- `SENDER_EMAIL`: `<email>`
-- `SENDER_PASSWORD`: App Password (16 символа, не обикновена парола!)
+- `SENDER_EMAIL`: `your-email@gmail.com`
+- `SENDER_PASSWORD`: App Password (16 characters, not regular password!)
 
-**Важно**: Трябва да използвате App Password, не обикновената Gmail парола.
+**Important**: You must use App Password, not your regular Gmail password.
 
-Създаване на App Password: https://myaccount.google.com/apppasswords
+Create App Password: https://myaccount.google.com/apppasswords
 
-## 🐛 Отстраняване на проблеми
+## Troubleshooting
 
-### Workflow не работи
+### Workflow not working
 
-1. Проверете **Actions** таб за логове
-2. Проверете GitHub Secrets са правилно зададени
-3. Уверете се че `config.json` е качен в repository
+1. Check **Actions** tab for logs
+2. Verify GitHub Secrets are correctly set
+3. Ensure `config.json` is uploaded to repository
 
-### Не получавам имейл
+### Not receiving emails
 
-1. Проверете SPAM папката
-2. Проверете формата на `EMAIL_RECIPIENTS` (без интервали между имейлите)
-3. Проверете workflow логовете за "Email sent successfully!"
+1. Check SPAM folder
+2. Verify `EMAIL_RECIPIENTS` format (no spaces between emails)
+3. Check workflow logs for "Email sent successfully!"
 
-### Грешка "Authentication failed"
+### "Authentication failed" error
 
-- Трябва да използвате Gmail App Password (16 символа), не обикновена парола
-- Проверете `SENDER_EMAIL` и `SENDER_PASSWORD` в GitHub Secrets
-- Уверете се, че App Password е генериран правилно: https://myaccount.google.com/apppasswords
+- Must use Gmail App Password (16 characters), not regular password
+- Check `SENDER_EMAIL` and `SENDER_PASSWORD` in GitHub Secrets
+- Ensure App Password is generated correctly: https://myaccount.google.com/apppasswords
 
-## 📚 Документация
-
-- **[GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md)** - Детайлна стъпка-по-стъпка инструкция
-- **[README.md](README.md)** - Оригинална документация
-- **[QUICKSTART.md](QUICKSTART.md)** - Локално използване
-
-## 🎯 Примерни градове
+## Example Cities
 
 - ГЪРМЕН
 - ДЕБРЕН
@@ -229,15 +205,15 @@ Connection timeout
 - МОНТАНА
 - ВИДИН
 
-Използвайте точните имена както са изписани в PDF-ите (кирилица, главни букви).
+Use exact names as written in PDFs (Cyrillic, uppercase).
 
-## 📞 Поддръжка
+## Support
 
-При проблеми:
-1. Проверете Actions логовете
-2. Проверете имейла на администратор за грешки
-3. Проверете дали website-а е достъпен: https://info.ermzapad.bg
+If issues occur:
+1. Check Actions logs
+2. Check GitHub notifications for errors
+3. Verify website is accessible: https://info.ermzapad.bg
 
-## 📄 Лиценз
+## License
 
-За лична/образователна употреба. Моля, спазвайте условията на ERMZapad website.
+For personal/educational use. Please respect ERMZapad website terms of service.
