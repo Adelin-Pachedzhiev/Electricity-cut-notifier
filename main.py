@@ -67,8 +67,8 @@ class CutNotifier:
             self.save_config(config)
 
         # Override with environment variables (for GitHub Actions)
-        config['sender_email'] = os.getenv('SENDER_EMAIL', config.get('sender_email', ''))
-        config['sender_password'] = os.getenv('SENDER_PASSWORD', config.get('sender_password', ''))
+        config['sender_email'] = os.getenv('SENDER_EMAIL')
+        config['sender_password'] = os.getenv('SENDER_PASSWORD')
 
         # Parse comma-separated recipients from env var
         recipients_env = os.getenv('EMAIL_RECIPIENTS', '')
