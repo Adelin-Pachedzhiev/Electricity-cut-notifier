@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Project specific
+pdfs/
+*.pdf
+*.log
+
+# Keep config.json but remove sensitive data before committing
+# config.json should NOT contain email credentials
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cached files
+fetched_page.html
+*.pyc
