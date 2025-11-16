@@ -160,11 +160,14 @@ class CutNotifier:
 
             raise ValueError(f"Configuration validation failed with {len(errors)} error(s)")
 
-        # Success message
+        # Success message with debugging info
         print("✅ Configuration validated successfully")
         print(f"   - Monitoring {len(self.config['monitored_cities'])} city/cities: {', '.join(self.config['monitored_cities'])}")
-        print(f"   - Will notify {len(self.config['email_recipients'])} recipient(s)")
-        print(f"   - Using SMTP: {self.config['smtp_server']}:{self.config['smtp_port']}\n")
+        print(f"   - Sender email: {self.config['sender_email']}")
+        print(f"   - Password length: {len(self.config['sender_password'])} characters")
+        print(f"   - Will notify {len(self.config['email_recipients'])} recipient(s): {', '.join(self.config['email_recipients'])}")
+        print(f"   - Using SMTP: {self.config['smtp_server']}:{self.config['smtp_port']}")
+        print(f"   - Connection type: {'SSL' if self.config['smtp_port'] == 465 else 'TLS'}\n")
 
     def save_config(self, config=None):
         """

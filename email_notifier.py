@@ -85,9 +85,15 @@ class EmailNotifier:
             print("Email sent successfully!")
             return True
 
-        except smtplib.SMTPAuthenticationError:
-            print("ERROR: Email authentication failed. Check your email and password.")
-            print("For Gmail, you may need to use an App Password instead of your regular password.")
+        except smtplib.SMTPAuthenticationError as e:
+            print("ERROR: Email authentication failed.")
+            print(f"Server response: {str(e)}")
+            print(f"\nTroubleshooting:")
+            print(f"  - Verify SENDER_EMAIL is correct: {self.sender_email}")
+            print(f"  - Verify SENDER_PASSWORD is set (length: {len(self.sender_password)} chars)")
+            print(f"  - For Gmail: Use App Password, not regular password")
+            print(f"  - For ABV.bg: Use your regular account password")
+            print(f"  - Check GitHub Secrets are properly set")
             print("See: https://support.google.com/accounts/answer/185833")
             return False
 
