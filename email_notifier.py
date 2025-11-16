@@ -90,36 +90,16 @@ class EmailNotifier:
             print("\n" + "=" * 70)
             print("ERROR: Email Authentication Failed")
             print("=" * 70)
-            print(f"Server response: {error_msg}")
+            print(f"Server: {error_msg}\n")
 
-            # Check for specific error patterns
-            if 'wrong password' in error_msg.lower():
-                print("\n❌ WRONG PASSWORD!")
-                print("\nThe SENDER_PASSWORD secret contains the wrong password.")
-                print("\n🔧 How to fix:")
-                print("  1. Go to GitHub: Settings → Secrets → Actions")
-                print("  2. Delete SENDER_PASSWORD")
-                print("  3. Create new SENDER_PASSWORD with correct password")
-                print("  4. NO spaces, NO quotes around password")
-                print("\n📧 For ABV.bg:")
-                print("  - Use your regular ABV account password")
-                print("  - Same password you use for https://www.abv.bg")
-                print("\n✅ Test it first:")
-                print(f"  - Login to https://www.abv.bg")
-                print(f"  - Email: {self.sender_email}")
-                print(f"  - If login works, use THAT password in secret")
-
-            elif 'authentication failed' in error_msg.lower():
-                print("\n❓ Possible causes:")
-                print("  1. Wrong password")
-                print("  2. Wrong email address")
-                print("  3. Account locked (too many failed attempts)")
-                print("  4. Two-factor authentication enabled")
-
-            print("\n📊 Current configuration:")
-            print(f"  Email: {self.sender_email}")
-            print(f"  Password length: {len(self.sender_password)} chars")
-            print(f"  SMTP: {self.smtp_server}:{self.smtp_port}")
+            print("❌ Authentication failed - check your credentials")
+            print("\nQuick fix:")
+            print("  1. Go to: GitHub Settings → Secrets → Actions")
+            print("  2. Update SENDER_PASSWORD with correct password")
+            print("  3. For Gmail: Must use App Password (not regular password)")
+            print("  4. Re-run the workflow")
+            print(f"\nEmail: {self.sender_email}")
+            print(f"SMTP: {self.smtp_server}:{self.smtp_port}")
             print("=" * 70 + "\n")
 
             return False

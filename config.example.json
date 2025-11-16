@@ -6,6 +6,6 @@
   ],
   "pdf_cache_dir": "./pdfs",
   "check_days_ahead": 3,
-  "smtp_server": "smtp.abv.bg",
-  "smtp_port": 465
+  "smtp_server": "smtp.gmail.com",
+  "smtp_port": 587
 }

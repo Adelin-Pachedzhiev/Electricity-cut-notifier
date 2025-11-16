@@ -21,9 +21,11 @@ git push -u origin main
 
 | Secret Name | Example Value | Description |
 |-------------|---------------|-------------|
-| `SENDER_EMAIL` | `notify_bg@abv.bg` | Имейл адрес за изпращане |
-| `SENDER_PASSWORD` | `your-password` | Парола за имейл |
-| `EMAIL_RECIPIENTS` | `email1@abv.bg,email2@gmail.com` | Получатели (разделени със запетая) |
+| `SENDER_EMAIL` | `biodix13@gmail.com` | Gmail адрес за изпращане |
+| `SENDER_PASSWORD` | `xxxx xxxx xxxx xxxx` | Gmail App Password (16 символа) |
+| `EMAIL_RECIPIENTS` | `email1@gmail.com,email2@abv.bg` | Получатели (разделени със запетая) |
+
+**Важно за Gmail:** Използвайте App Password (не обикновената парола). Генерирайте на: https://myaccount.google.com/apppasswords
 
 **Известия за грешки:** GitHub автоматично изпраща имейл при неуспешно изпълнение. Вижте [GITHUB_NOTIFICATIONS.md](GITHUB_NOTIFICATIONS.md).
 
@@ -33,8 +35,8 @@ git push -u origin main
 {
   "monitored_cities": ["ГЪРМЕН", "ДЕБРЕН", "САНДАНСКИ"],
   "check_days_ahead": 3,
-  "smtp_server": "smtp.abv.bg",
-  "smtp_port": 465
+  "smtp_server": "smtp.gmail.com",
+  "smtp_port": 587
 }
 ```
 
@@ -45,7 +47,7 @@ git push -u origin main
 ## 📧 Формат на известието (на български)
 
 ```
-От: notify_bg@abv.bg
+От: <email>
 До: вашия-имейл@example.com
 Тема: Известие за прекъсване на тока - 2 дат(и) засегнат(и)
 
@@ -69,8 +71,8 @@ git push -u origin main
 
 - `monitored_cities`: Списък с градове за проверка (кирилица, главни букви)
 - `check_days_ahead`: Колко дни напред да проверява (по подразбиране: 3)
-- `smtp_server`: SMTP сървър (ABV.bg: `smtp.abv.bg`, Gmail: `smtp.gmail.com`)
-- `smtp_port`: Порт (ABV: 465, Gmail: 587)
+- `smtp_server`: SMTP сървър (Gmail: `smtp.gmail.com`)
+- `smtp_port`: Порт (Gmail: 587)
 
 ### GitHub Secrets (задължителни - само 3!)
 
@@ -165,25 +167,12 @@ Connection timeout
 
 - ✅ Паролите се съхраняват като GitHub Secrets (криптирани)
 - ✅ Никога не се показват в логовете
-- ✅ Препоръчваме App Password за Gmail
+- ✅ Gmail App Password (не вашата главна парола)
 - ✅ config.json НЕ съдържа пароли (само градове и настройки)
 
-## 📝 Поддържани имейл доставчици
+## 📝 Настройка на Gmail
 
-### ABV.bg (Препоръчителен)
-
-```json
-{
-  "smtp_server": "smtp.abv.bg",
-  "smtp_port": 465
-}
-```
-
-GitHub Secrets:
-- `SENDER_EMAIL`: `your-email@abv.bg`
-- `SENDER_PASSWORD`: Вашата ABV парола
-
-### Gmail
+### config.json
 
 ```json
 {
@@ -192,9 +181,12 @@ GitHub Secrets:
 }
 ```
 
-GitHub Secrets:
-- `SENDER_EMAIL`: `your-email@gmail.com`
-- `SENDER_PASSWORD`: App Password (не обикновена парола!)
+### GitHub Secrets
+
+- `SENDER_EMAIL`: `<email>`
+- `SENDER_PASSWORD`: App Password (16 символа, не обикновена парола!)
+
+**Важно**: Трябва да използвате App Password, не обикновената Gmail парола.
 
 Създаване на App Password: https://myaccount.google.com/apppasswords
 
@@ -214,9 +206,9 @@ GitHub Secrets:
 
 ### Грешка "Authentication failed"
 
-- За ABV: Проверете потребител и парола
-- За Gmail: Трябва App Password, не обикновена парола
+- Трябва да използвате Gmail App Password (16 символа), не обикновена парола
 - Проверете `SENDER_EMAIL` и `SENDER_PASSWORD` в GitHub Secrets
+- Уверете се, че App Password е генериран правилно: https://myaccount.google.com/apppasswords
 
 ## 📚 Документация
 

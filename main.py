@@ -130,11 +130,6 @@ class CutNotifier:
             if '@' not in recipient:
                 errors.append(f"❌ EMAIL_RECIPIENTS contains invalid email: '{recipient}'")
 
-        # Validate SMTP port
-        smtp_port = self.config.get('smtp_port')
-        if smtp_port and smtp_port not in [25, 465, 587, 2525]:
-            print(f"⚠️  Warning: Unusual SMTP port {smtp_port}. Common ports: 465 (SSL), 587 (TLS)")
-
         # If there are errors, print them and fail
         if errors:
             print("\n" + "=" * 70)
@@ -160,14 +155,11 @@ class CutNotifier:
 
             raise ValueError(f"Configuration validation failed with {len(errors)} error(s)")
 
-        # Success message with debugging info
-        print("✅ Configuration validated successfully")
-        print(f"   - Monitoring {len(self.config['monitored_cities'])} city/cities: {', '.join(self.config['monitored_cities'])}")
-        print(f"   - Sender email: {self.config['sender_email']}")
-        print(f"   - Password length: {len(self.config['sender_password'])} characters")
-        print(f"   - Will notify {len(self.config['email_recipients'])} recipient(s): {', '.join(self.config['email_recipients'])}")
-        print(f"   - Using SMTP: {self.config['smtp_server']}:{self.config['smtp_port']}")
-        print(f"   - Connection type: {'SSL' if self.config['smtp_port'] == 465 else 'TLS'}\n")
+        # Success message
+        print("✅ Configuration validated")
+        print(f"   Cities: {', '.join(self.config['monitored_cities'])}")
+        print(f"   Recipients: {len(self.config['email_recipients'])}")
+        print(f"   SMTP: {self.config['smtp_server']}:{self.config['smtp_port']}\n")
 
     def save_config(self, config=None):
         """
@@ -379,7 +371,14 @@ def main():
             )
 
             subject = f"Известие за прекъсване на тока - {len(results)} дат(и) засегнат(и)"
-            email_notifier.send_notification(recipients, subject, message)
+            success = email_notifier.send_notification(recipients, subject, message)
+
+            if not success:
+                raise RuntimeError(
+                    "Failed to send email notification. "
+                    "Check the error messages above for details. "
+                    "Common issue: Wrong password in SENDER_PASSWORD secret."
+                )
         elif results:
             print("\nНяма конфигурирани получатели на имейл. Добавете ги в config.json за да получавате известия.")
         else:
@@ -396,8 +395,8 @@ def main():
         print("\nПълни детайли:")
         print(error_trace)
         print("\n" + "=" * 70)
-        print("GitHub Actions will send you a notification about this failure.")
-        print("Check the Actions tab in your repository for full logs.")
+
+        print("GitHub Actions will notify you about this failure.")
         print("=" * 70)
 
         # Re-raise to ensure GitHub Actions marks the run as failed
