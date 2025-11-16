@@ -2,8 +2,8 @@ name: Check Electricity Cuts
 
 on:
   schedule:
-    # Run every day at 8:00 AM UTC (10:00 AM Bulgarian time)
-    - cron: '0 8 * * *'
+    # Run every day at 6:00 AM UTC (8:00 AM Bulgarian time)
+    - cron: '0 6 * * *'
 
   # Allow manual triggering from GitHub UI
   workflow_dispatch:
