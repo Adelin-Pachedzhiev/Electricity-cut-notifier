@@ -31,6 +31,7 @@ class CutNotifier:
         """
         self.config_file = config_file
         self.config = self.load_config()
+        self.validate_config()
         self.scraper = ElectricityCutScraper()
 
     def load_config(self):
@@ -52,32 +53,118 @@ class CutNotifier:
         Returns:
             dict: Configuration dictionary
         """
-        if os.path.exists(self.config_file):
+        if not os.path.exists(self.config_file):
+            raise FileNotFoundError(
+                f"❌ Configuration file '{self.config_file}' not found!\n"
+                f"   Create it from the example: cp config.example.json config.json\n"
+                f"   See README.md for configuration instructions."
+            )
+
+        try:
             with open(self.config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-        else:
-            # Default configuration
-            config = {
-                "monitored_cities": ["ГЪРМЕН"],
-                "pdf_cache_dir": "./pdfs",
-                "check_days_ahead": 3,
-                "smtp_server": "smtp.gmail.com",
-                "smtp_port": 587
-            }
-            self.save_config(config)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"❌ Invalid JSON in '{self.config_file}':\n"
+                f"   {str(e)}\n"
+                f"   Check for syntax errors (missing commas, quotes, etc.)"
+            )
 
         # Override with environment variables (for GitHub Actions)
-        config['sender_email'] = os.getenv('SENDER_EMAIL')
-        config['sender_password'] = os.getenv('SENDER_PASSWORD')
+        config['sender_email'] = os.getenv('SENDER_EMAIL', '').strip()
+        config['sender_password'] = os.getenv('SENDER_PASSWORD', '').strip()
 
         # Parse comma-separated recipients from env var
-        recipients_env = os.getenv('EMAIL_RECIPIENTS', '')
+        recipients_env = os.getenv('EMAIL_RECIPIENTS', '').strip()
         if recipients_env:
-            config['email_recipients'] = [email.strip() for email in recipients_env.split(',')]
+            config['email_recipients'] = [email.strip() for email in recipients_env.split(',') if email.strip()]
         elif 'email_recipients' not in config:
             config['email_recipients'] = []
 
         return config
+
+    def validate_config(self):
+        """
+        Validates configuration and fails fast if something is wrong.
+
+        This ensures errors are caught early in the GitHub Actions pipeline.
+        """
+        errors = []
+
+        # Check required fields in config.json
+        if not self.config.get('monitored_cities'):
+            errors.append("❌ 'monitored_cities' is missing or empty in config.json")
+        elif not isinstance(self.config['monitored_cities'], list):
+            errors.append("❌ 'monitored_cities' must be a list")
+        elif len(self.config['monitored_cities']) == 0:
+            errors.append("❌ 'monitored_cities' list is empty - add at least one city")
+
+        if not self.config.get('smtp_server'):
+            errors.append("❌ 'smtp_server' is missing in config.json")
+
+        if not self.config.get('smtp_port'):
+            errors.append("❌ 'smtp_port' is missing in config.json")
+        elif not isinstance(self.config['smtp_port'], int):
+            errors.append(f"❌ 'smtp_port' must be a number, got: {type(self.config['smtp_port']).__name__}")
+
+        # Check environment variables (GitHub Secrets)
+        if not self.config.get('sender_email'):
+            errors.append("❌ SENDER_EMAIL environment variable is not set (check GitHub Secrets)")
+
+        if not self.config.get('sender_password'):
+            errors.append("❌ SENDER_PASSWORD environment variable is not set (check GitHub Secrets)")
+
+        if not self.config.get('email_recipients'):
+            errors.append("❌ EMAIL_RECIPIENTS environment variable is not set (check GitHub Secrets)")
+        elif not isinstance(self.config['email_recipients'], list):
+            errors.append("❌ EMAIL_RECIPIENTS must be a comma-separated list")
+        elif len(self.config['email_recipients']) == 0:
+            errors.append("❌ EMAIL_RECIPIENTS is empty - add at least one recipient")
+
+        # Validate email format (basic check)
+        sender = self.config.get('sender_email', '')
+        if sender and '@' not in sender:
+            errors.append(f"❌ SENDER_EMAIL appears invalid: '{sender}'")
+
+        for recipient in self.config.get('email_recipients', []):
+            if '@' not in recipient:
+                errors.append(f"❌ EMAIL_RECIPIENTS contains invalid email: '{recipient}'")
+
+        # Validate SMTP port
+        smtp_port = self.config.get('smtp_port')
+        if smtp_port and smtp_port not in [25, 465, 587, 2525]:
+            print(f"⚠️  Warning: Unusual SMTP port {smtp_port}. Common ports: 465 (SSL), 587 (TLS)")
+
+        # If there are errors, print them and fail
+        if errors:
+            print("\n" + "=" * 70)
+            print("КОНФИГУРАЦИОННА ГРЕШКА / CONFIGURATION ERROR")
+            print("=" * 70)
+            print("\nПроблеми с конфигурацията / Configuration issues:\n")
+            for error in errors:
+                print(f"  {error}")
+
+            print("\n" + "-" * 70)
+            print("Как да поправите / How to fix:")
+            print("-" * 70)
+            print("1. Проверете config.json за градове и SMTP настройки")
+            print("   Check config.json for cities and SMTP settings")
+            print("\n2. Проверете GitHub Secrets (Settings → Secrets → Actions):")
+            print("   Check GitHub Secrets (Settings → Secrets → Actions):")
+            print("   - SENDER_EMAIL")
+            print("   - SENDER_PASSWORD")
+            print("   - EMAIL_RECIPIENTS")
+            print("\n3. Вижте README.md за детайли")
+            print("   See README.md for details")
+            print("=" * 70 + "\n")
+
+            raise ValueError(f"Configuration validation failed with {len(errors)} error(s)")
+
+        # Success message
+        print("✅ Configuration validated successfully")
+        print(f"   - Monitoring {len(self.config['monitored_cities'])} city/cities: {', '.join(self.config['monitored_cities'])}")
+        print(f"   - Will notify {len(self.config['email_recipients'])} recipient(s)")
+        print(f"   - Using SMTP: {self.config['smtp_server']}:{self.config['smtp_port']}\n")
 
     def save_config(self, config=None):
         """
