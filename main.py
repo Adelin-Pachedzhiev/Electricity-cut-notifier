@@ -15,6 +15,8 @@ from scraper import ElectricityCutScraper
 from pdf_parser import PDFCutParser
 from email_notifier import EmailNotifier
 import traceback
+import re
+
 
 
 class CutNotifier:
@@ -234,7 +236,7 @@ class CutNotifier:
 
         Args:
             cuts: List of cut entry dicts
-            cities: List of city names to match (case-insensitive)
+            cities: List of city names to match (word boundary match, case-insensitive)
 
         Returns:
             list: Filtered cuts that match the specified cities
@@ -248,9 +250,12 @@ class CutNotifier:
         for cut in cuts:
             location = cut['location'].upper()
 
-            # Check if any of the monitored cities appear in the location
+            # Use word boundary matching to avoid "ДЕБРЕН" matching "ДЕБРЕНЕ"
+            # \b ensures we match complete words only
             for city in cities_upper:
-                if city in location:
+                # Create pattern with word boundaries
+                pattern = r'\b' + re.escape(city) + r'\b'
+                if re.search(pattern, location):
                     filtered.append(cut)
                     break
 
